@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 const TransactionLazyRouteImport = createFileRoute('/transaction')()
 const StockLazyRouteImport = createFileRoute('/stock')()
 const HistoryLazyRouteImport = createFileRoute('/history')()
+const SplatLazyRouteImport = createFileRoute('/$')()
 
 const TransactionLazyRoute = TransactionLazyRouteImport.update({
   id: '/transaction',
@@ -32,6 +33,11 @@ const HistoryLazyRoute = HistoryLazyRouteImport.update({
   path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/history.lazy').then((d) => d.Route))
+const SplatLazyRoute = SplatLazyRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/$.lazy').then((d) => d.Route))
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -40,12 +46,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatLazyRoute
   '/history': typeof HistoryLazyRoute
   '/stock': typeof StockLazyRoute
   '/transaction': typeof TransactionLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatLazyRoute
   '/history': typeof HistoryLazyRoute
   '/stock': typeof StockLazyRoute
   '/transaction': typeof TransactionLazyRoute
@@ -53,20 +61,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatLazyRoute
   '/history': typeof HistoryLazyRoute
   '/stock': typeof StockLazyRoute
   '/transaction': typeof TransactionLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/history' | '/stock' | '/transaction'
+  fullPaths: '/' | '/$' | '/history' | '/stock' | '/transaction'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/history' | '/stock' | '/transaction'
-  id: '__root__' | '/' | '/history' | '/stock' | '/transaction'
+  to: '/' | '/$' | '/history' | '/stock' | '/transaction'
+  id: '__root__' | '/' | '/$' | '/history' | '/stock' | '/transaction'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatLazyRoute: typeof SplatLazyRoute
   HistoryLazyRoute: typeof HistoryLazyRoute
   StockLazyRoute: typeof StockLazyRoute
   TransactionLazyRoute: typeof TransactionLazyRoute
@@ -95,6 +105,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoryLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -107,6 +124,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatLazyRoute: SplatLazyRoute,
   HistoryLazyRoute: HistoryLazyRoute,
   StockLazyRoute: StockLazyRoute,
   TransactionLazyRoute: TransactionLazyRoute,
