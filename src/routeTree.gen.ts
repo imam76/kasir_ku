@@ -8,9 +8,30 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TransactionLazyRouteImport = createFileRoute('/transaction')()
+const StockLazyRouteImport = createFileRoute('/stock')()
+const HistoryLazyRouteImport = createFileRoute('/history')()
+
+const TransactionLazyRoute = TransactionLazyRouteImport.update({
+  id: '/transaction',
+  path: '/transaction',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/transaction.lazy').then((d) => d.Route))
+const StockLazyRoute = StockLazyRouteImport.update({
+  id: '/stock',
+  path: '/stock',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/stock.lazy').then((d) => d.Route))
+const HistoryLazyRoute = HistoryLazyRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/history.lazy').then((d) => d.Route))
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +40,61 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/history': typeof HistoryLazyRoute
+  '/stock': typeof StockLazyRoute
+  '/transaction': typeof TransactionLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/history': typeof HistoryLazyRoute
+  '/stock': typeof StockLazyRoute
+  '/transaction': typeof TransactionLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/history': typeof HistoryLazyRoute
+  '/stock': typeof StockLazyRoute
+  '/transaction': typeof TransactionLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/history' | '/stock' | '/transaction'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/history' | '/stock' | '/transaction'
+  id: '__root__' | '/' | '/history' | '/stock' | '/transaction'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HistoryLazyRoute: typeof HistoryLazyRoute
+  StockLazyRoute: typeof StockLazyRoute
+  TransactionLazyRoute: typeof TransactionLazyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/transaction': {
+      id: '/transaction'
+      path: '/transaction'
+      fullPath: '/transaction'
+      preLoaderRoute: typeof TransactionLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stock': {
+      id: '/stock'
+      path: '/stock'
+      fullPath: '/stock'
+      preLoaderRoute: typeof StockLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +107,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HistoryLazyRoute: HistoryLazyRoute,
+  StockLazyRoute: StockLazyRoute,
+  TransactionLazyRoute: TransactionLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
