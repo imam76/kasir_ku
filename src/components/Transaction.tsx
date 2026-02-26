@@ -1,150 +1,23 @@
-import { useState, useEffect } from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, DollarSign } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Product, CartItem } from '../types';
+import { useTransaction } from '../hooks/useTransaction';
+import { formatCurrency } from '../utils/formatters';
 
 export default function Transaction() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [showPayment, setShowPayment] = useState(false);
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('name');
-
-    if (!error && data) {
-      setProducts(data);
-    }
-  };
-
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const addToCart = (product: Product) => {
-    if (product.stock < 1) {
-      alert('Stok tidak tersedia!');
-      return;
-    }
-
-    const existingItem = cart.find((item) => item.product.id === product.id);
-
-    if (existingItem) {
-      if (existingItem.quantity >= product.stock) {
-        alert('Stok tidak mencukupi!');
-        return;
-      }
-      setCart(
-        cart.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      setCart([...cart, { product, quantity: 1 }]);
-    }
-  };
-
-  const updateQuantity = (productId: string, newQuantity: number) => {
-    const item = cart.find((i) => i.product.id === productId);
-    if (!item) return;
-
-    if (newQuantity > item.product.stock) {
-      alert('Stok tidak mencukupi!');
-      return;
-    }
-
-    if (newQuantity < 1) {
-      removeFromCart(productId);
-      return;
-    }
-
-    setCart(
-      cart.map((item) =>
-        item.product.id === productId ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeFromCart = (productId: string) => {
-    setCart(cart.filter((item) => item.product.id !== productId));
-  };
-
-  const calculateTotal = () => {
-    return cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  };
-
-  const handleCheckout = async () => {
-    const total = calculateTotal();
-    const payment = parseFloat(paymentAmount);
-
-    if (isNaN(payment) || payment < total) {
-      alert('Jumlah pembayaran tidak valid atau kurang!');
-      return;
-    }
-
-    const transactionNumber = `TRX-${Date.now()}`;
-    const change = payment - total;
-
-    const { data: transaction, error: transError } = await supabase
-      .from('transactions')
-      .insert({
-        transaction_number: transactionNumber,
-        total_amount: total,
-        payment_amount: payment,
-        change_amount: change,
-      })
-      .select()
-      .single();
-
-    if (transError || !transaction) {
-      alert('Gagal membuat transaksi!');
-      return;
-    }
-
-    const transactionItems = cart.map((item) => ({
-      transaction_id: transaction.id,
-      product_id: item.product.id,
-      product_name: item.product.name,
-      price: item.product.price,
-      quantity: item.quantity,
-      subtotal: item.product.price * item.quantity,
-    }));
-
-    const { error: itemsError } = await supabase
-      .from('transaction_items')
-      .insert(transactionItems);
-
-    if (itemsError) {
-      alert('Gagal menyimpan item transaksi!');
-      return;
-    }
-
-    for (const item of cart) {
-      await supabase
-        .from('products')
-        .update({ stock: item.product.stock - item.quantity })
-        .eq('id', item.product.id);
-    }
-
-    alert(`Transaksi berhasil!\n\nTotal: Rp ${total.toLocaleString('id-ID')}\nBayar: Rp ${payment.toLocaleString('id-ID')}\nKembali: Rp ${change.toLocaleString('id-ID')}`);
-
-    setCart([]);
-    setPaymentAmount('');
-    setShowPayment(false);
-    loadProducts();
-  };
+  const {
+    cart,
+    searchTerm,
+    paymentAmount,
+    showPayment,
+    filteredProducts,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    calculateTotal,
+    handleCheckout,
+    setSearchTerm,
+    setPaymentAmount,
+    setShowPayment,
+  } = useTransaction();
 
   return (
     <div className="p-6">
@@ -175,7 +48,7 @@ export default function Transaction() {
                 <h3 className="font-semibold text-gray-800 mb-1">{product.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">{product.sku}</p>
                 <p className="text-lg font-bold text-blue-600">
-                  Rp {product.price.toLocaleString('id-ID')}
+                  Rp {formatCurrency(product.price)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   Stok: {product.stock}
@@ -198,7 +71,7 @@ export default function Transaction() {
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{item.product.name}</p>
                     <p className="text-sm text-gray-600">
-                      Rp {item.product.price.toLocaleString('id-ID')}
+                      Rp {formatCurrency(item.product.price)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -234,7 +107,7 @@ export default function Transaction() {
                 <div className="border-t pt-4 mb-4">
                   <div className="flex justify-between text-xl font-bold text-gray-800">
                     <span>Total:</span>
-                    <span>Rp {calculateTotal().toLocaleString('id-ID')}</span>
+                    <span>Rp {formatCurrency(calculateTotal())}</span>
                   </div>
                 </div>
 
@@ -257,7 +130,7 @@ export default function Transaction() {
                     />
                     {paymentAmount && parseFloat(paymentAmount) >= calculateTotal() && (
                       <p className="text-sm text-gray-700">
-                        Kembalian: <span className="font-bold">Rp {(parseFloat(paymentAmount) - calculateTotal()).toLocaleString('id-ID')}</span>
+                        Kembalian: <span className="font-bold">Rp {formatCurrency(parseFloat(paymentAmount) - calculateTotal())}</span>
                       </p>
                     )}
                     <div className="flex gap-2">

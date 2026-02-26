@@ -1,68 +1,9 @@
-import { useState, useEffect } from 'react';
 import { Receipt, ChevronDown, ChevronUp } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Transaction, TransactionItem } from '../types';
-
-interface TransactionWithItems extends Transaction {
-  items?: TransactionItem[];
-}
+import { useHistory } from '../hooks/useHistory';
+import { formatDate, formatCurrency } from '../utils/formatters';
 
 export default function History() {
-  const [transactions, setTransactions] = useState<TransactionWithItems[]>([]);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadTransactions();
-  }, []);
-
-  const loadTransactions = async () => {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setTransactions(data);
-    }
-  };
-
-  const loadTransactionItems = async (transactionId: string) => {
-    const { data, error } = await supabase
-      .from('transaction_items')
-      .select('*')
-      .eq('transaction_id', transactionId);
-
-    if (!error && data) {
-      setTransactions(
-        transactions.map((t) =>
-          t.id === transactionId ? { ...t, items: data } : t
-        )
-      );
-    }
-  };
-
-  const toggleExpand = (transactionId: string) => {
-    if (expandedId === transactionId) {
-      setExpandedId(null);
-    } else {
-      setExpandedId(transactionId);
-      const transaction = transactions.find((t) => t.id === transactionId);
-      if (transaction && !transaction.items) {
-        loadTransactionItems(transactionId);
-      }
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const { transactions, expandedId, toggleExpand } = useHistory();
 
   return (
     <div className="p-6">
@@ -95,19 +36,19 @@ export default function History() {
                     <div>
                       <p className="text-xs text-gray-500">Total</p>
                       <p className="font-bold text-gray-800">
-                        Rp {transaction.total_amount.toLocaleString('id-ID')}
+                        Rp {formatCurrency(transaction.total_amount)}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Bayar</p>
                       <p className="font-semibold text-gray-700">
-                        Rp {transaction.payment_amount.toLocaleString('id-ID')}
+                        Rp {formatCurrency(transaction.payment_amount)}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Kembali</p>
                       <p className="font-semibold text-gray-700">
-                        Rp {transaction.change_amount.toLocaleString('id-ID')}
+                        Rp {formatCurrency(transaction.change_amount)}
                       </p>
                     </div>
                   </div>
@@ -134,11 +75,11 @@ export default function History() {
                       <div>
                         <p className="font-medium text-gray-800">{item.product_name}</p>
                         <p className="text-sm text-gray-600">
-                          {item.quantity} x Rp {item.price.toLocaleString('id-ID')}
+                          {item.quantity} x Rp {formatCurrency(item.price)}
                         </p>
                       </div>
                       <p className="font-bold text-gray-800">
-                        Rp {item.subtotal.toLocaleString('id-ID')}
+                        Rp {formatCurrency(item.subtotal)}
                       </p>
                     </div>
                   ))}

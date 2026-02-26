@@ -1,100 +1,20 @@
-import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Product } from '../types';
+import { useStockManagement } from '../hooks/useStockManagement';
+import { getStockStatusClass, formatCurrency } from '../utils/formatters';
 
 export default function StockManagement() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    stock: '',
-    sku: '',
-  });
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setProducts(data);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (editingId) {
-      const { error } = await supabase
-        .from('products')
-        .update({
-          name: formData.name,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-          sku: formData.sku,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', editingId);
-
-      if (!error) {
-        setEditingId(null);
-        resetForm();
-        loadProducts();
-      }
-    } else {
-      const { error } = await supabase
-        .from('products')
-        .insert({
-          name: formData.name,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-          sku: formData.sku,
-        });
-
-      if (!error) {
-        setIsAdding(false);
-        resetForm();
-        loadProducts();
-      }
-    }
-  };
-
-  const handleEdit = (product: Product) => {
-    setEditingId(product.id);
-    setFormData({
-      name: product.name,
-      price: product.price.toString(),
-      stock: product.stock.toString(),
-      sku: product.sku,
-    });
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Hapus produk ini?')) {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (!error) {
-        loadProducts();
-      }
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({ name: '', price: '', stock: '', sku: '' });
-    setIsAdding(false);
-    setEditingId(null);
-  };
+  const {
+    products,
+    isAdding,
+    editingId,
+    formData,
+    setIsAdding,
+    setFormData,
+    handleSubmit,
+    handleEdit,
+    handleDelete,
+    resetForm,
+  } = useStockManagement();
 
   return (
     <div className="p-6">
@@ -220,10 +140,10 @@ export default function StockManagement() {
                   {product.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Rp {product.price.toLocaleString('id-ID')}
+                  Rp {formatCurrency(product.price)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <span className={`px-2 py-1 rounded ${product.stock < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                  <span className={`px-2 py-1 rounded ${getStockStatusClass(product.stock)}`}>
                     {product.stock}
                   </span>
                 </td>
