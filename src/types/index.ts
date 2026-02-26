@@ -1,7 +1,8 @@
 export interface Product {
   id: string;
   name: string;
-  price: number;
+  purchase_price: number;
+  selling_price: number;
   stock: number;
   sku: string;
   created_at: string;
@@ -23,8 +24,10 @@ export interface TransactionItem {
   product_id: string;
   product_name: string;
   price: number;
+  purchase_price: number;
   quantity: number;
   subtotal: number;
+  profit: number;
   created_at: string;
 }
 

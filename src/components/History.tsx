@@ -32,7 +32,7 @@ export default function History() {
                       {formatDate(transaction.created_at)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
                     <div>
                       <p className="text-xs text-gray-500">Total</p>
                       <p className="font-bold text-gray-800">
@@ -49,6 +49,17 @@ export default function History() {
                       <p className="text-xs text-gray-500">Kembali</p>
                       <p className="font-semibold text-gray-700">
                         Rp {formatCurrency(transaction.change_amount)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Profit</p>
+                      <p className={`font-bold ${transaction.items
+                          ? transaction.items.reduce((sum: number, item: any) => sum + (item.profit || 0), 0) > 0
+                            ? 'text-green-700'
+                            : 'text-red-700'
+                          : 'text-gray-700'
+                        }`}>
+                        Rp {formatCurrency(transaction.items ? transaction.items.reduce((sum: number, item: any) => sum + (item.profit || 0), 0) : 0)}
                       </p>
                     </div>
                   </div>
@@ -70,17 +81,35 @@ export default function History() {
                   {transaction.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex justify-between items-center bg-white p-3 rounded border border-gray-200"
+                      className="bg-white p-3 rounded border border-gray-200"
                     >
-                      <div>
-                        <p className="font-medium text-gray-800">{item.product_name}</p>
-                        <p className="text-sm text-gray-600">
-                          {item.quantity} x Rp {formatCurrency(item.price)}
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium text-gray-800">{item.product_name}</p>
+                          <p className="text-sm text-gray-600">
+                            {item.quantity} x Rp {formatCurrency(item.price)} = Rp {formatCurrency(item.subtotal)}
+                          </p>
+                        </div>
+                        <p className="font-bold text-gray-800">
+                          Rp {formatCurrency(item.subtotal)}
                         </p>
                       </div>
-                      <p className="font-bold text-gray-800">
-                        Rp {formatCurrency(item.subtotal)}
-                      </p>
+                      <div className="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-gray-100">
+                        <div>
+                          <p className="text-gray-500">Beli</p>
+                          <p className="font-semibold text-gray-700">Rp {formatCurrency(item.purchase_price)}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Jual</p>
+                          <p className="font-semibold text-gray-700">Rp {formatCurrency(item.price)}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Profit</p>
+                          <p className={`font-semibold ${item.profit > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            Rp {formatCurrency(item.profit)}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

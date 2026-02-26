@@ -48,7 +48,7 @@ export default function Transaction() {
                 <h3 className="font-semibold text-gray-800 mb-1">{product.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">{product.sku}</p>
                 <p className="text-lg font-bold text-blue-600">
-                  Rp {formatCurrency(product.price)}
+                  Rp {formatCurrency(product.selling_price)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   Stok: {product.stock}
@@ -71,7 +71,7 @@ export default function Transaction() {
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{item.product.name}</p>
                     <p className="text-sm text-gray-600">
-                      Rp {formatCurrency(item.product.price)}
+                      Rp {formatCurrency(item.product.selling_price)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

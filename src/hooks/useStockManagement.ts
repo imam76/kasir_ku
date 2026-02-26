@@ -4,7 +4,8 @@ import { Product } from '../types';
 
 interface FormData {
   name: string;
-  price: string;
+  purchase_price: string;
+  selling_price: string;
   stock: string;
   sku: string;
 }
@@ -15,7 +16,8 @@ export const useStockManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: '',
-    price: '',
+    purchase_price: '',
+    selling_price: '',
     stock: '',
     sku: '',
   });
@@ -43,7 +45,8 @@ export const useStockManagement = () => {
         .from('products')
         .update({
           name: formData.name,
-          price: parseFloat(formData.price),
+          purchase_price: parseFloat(formData.purchase_price),
+          selling_price: parseFloat(formData.selling_price),
           stock: parseInt(formData.stock),
           sku: formData.sku,
           updated_at: new Date().toISOString(),
@@ -60,7 +63,8 @@ export const useStockManagement = () => {
         .from('products')
         .insert({
           name: formData.name,
-          price: parseFloat(formData.price),
+          purchase_price: parseFloat(formData.purchase_price),
+          selling_price: parseFloat(formData.selling_price),
           stock: parseInt(formData.stock),
           sku: formData.sku,
         });
@@ -77,7 +81,8 @@ export const useStockManagement = () => {
     setEditingId(product.id);
     setFormData({
       name: product.name,
-      price: product.price.toString(),
+      purchase_price: product.purchase_price.toString(),
+      selling_price: product.selling_price.toString(),
       stock: product.stock.toString(),
       sku: product.sku,
     });
@@ -97,7 +102,7 @@ export const useStockManagement = () => {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', price: '', stock: '', sku: '' });
+    setFormData({ name: '', purchase_price: '', selling_price: '', stock: '', sku: '' });
     setIsAdding(false);
     setEditingId(null);
   };

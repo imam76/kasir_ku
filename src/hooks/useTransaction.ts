@@ -81,7 +81,7 @@ export const useTransaction = () => {
   };
 
   const calculateTotal = () => {
-    return cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    return cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
   };
 
   const handleCheckout = async () => {
@@ -116,9 +116,11 @@ export const useTransaction = () => {
       transaction_id: transaction.id,
       product_id: item.product.id,
       product_name: item.product.name,
-      price: item.product.price,
+      price: item.product.selling_price,
+      purchase_price: item.product.purchase_price,
       quantity: item.quantity,
-      subtotal: item.product.price * item.quantity,
+      subtotal: item.product.selling_price * item.quantity,
+      profit: (item.product.selling_price - item.product.purchase_price) * item.quantity,
     }));
 
     const { error: itemsError } = await supabase
