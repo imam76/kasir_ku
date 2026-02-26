@@ -1,0 +1,34 @@
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  sku: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Transaction {
+  id: string;
+  transaction_number: string;
+  total_amount: number;
+  payment_amount: number;
+  change_amount: number;
+  created_at: string;
+}
+
+export interface TransactionItem {
+  id: string;
+  transaction_id: string;
+  product_id: string;
+  product_name: string;
+  price: number;
+  quantity: number;
+  subtotal: number;
+  created_at: string;
+}
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
