@@ -14,7 +14,7 @@ const RootLayout = () => {
       <nav className="bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-gray-800">Aplikasi Kasir POS</h1>
+            <h1 className="text-2xl font-bold text-gray-800 cursor-pointer"><Link to='/'>Kasirku</Link></h1>
             <div className="flex gap-2">
               <Link
                 to="/stock"

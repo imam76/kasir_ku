@@ -10,7 +10,7 @@ function Index() {
     <div className="py-12 px-4">
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Selamat Datang di Aplikasi Kasir POS
+          Selamat Datang di Kasirku
         </h1>
         <p className="text-lg text-gray-600 mb-12">
           Kelola transaksi, stok produk, dan lihat riwayat penjualan Anda dengan mudah
