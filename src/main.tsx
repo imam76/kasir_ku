@@ -5,6 +5,7 @@ import { routeTree } from './routeTree.gen';
 // import App from './App.tsx';
 import './index.css';
 import { ThemeProvider } from './ThemeProvider';
+import { QueryProvider } from './providers/QueryProvider';
 
 // Create a new router instance
 const router = createRouter({ routeTree })
@@ -18,8 +19,10 @@ declare module '@tanstack/react-router' {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultMode="light">
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <QueryProvider>
+      <ThemeProvider defaultMode="light">
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </QueryProvider>
   </StrictMode>
 );

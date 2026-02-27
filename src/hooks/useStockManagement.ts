@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { Product } from '../types';
 
@@ -11,7 +12,7 @@ interface FormData {
 }
 
 export const useStockManagement = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -22,59 +23,72 @@ export const useStockManagement = () => {
     sku: '',
   });
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
+  // Fetch products query
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const loadProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-    if (!error && data) {
-      setProducts(data);
-    }
-  };
+  // Upsert (add/update) mutation
+  const upsertMutation = useMutation({
+    mutationFn: async (productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
+      if (editingId) {
+        const { error } = await supabase
+          .from('products')
+          .update({
+            ...productData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', editingId);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('products')
+          .insert(productData);
+
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      resetForm();
+    },
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingId) {
-      const { error } = await supabase
-        .from('products')
-        .update({
-          name: formData.name,
-          purchase_price: parseFloat(formData.purchase_price),
-          selling_price: parseFloat(formData.selling_price),
-          stock: parseInt(formData.stock),
-          sku: formData.sku,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', editingId);
-
-      if (!error) {
-        setEditingId(null);
-        resetForm();
-        loadProducts();
-      }
-    } else {
-      const { error } = await supabase
-        .from('products')
-        .insert({
-          name: formData.name,
-          purchase_price: parseFloat(formData.purchase_price),
-          selling_price: parseFloat(formData.selling_price),
-          stock: parseInt(formData.stock),
-          sku: formData.sku,
-        });
-
-      if (!error) {
-        setIsAdding(false);
-        resetForm();
-        loadProducts();
-      }
-    }
+    upsertMutation.mutate({
+      name: formData.name,
+      purchase_price: parseFloat(formData.purchase_price),
+      selling_price: parseFloat(formData.selling_price),
+      stock: parseInt(formData.stock),
+      sku: formData.sku,
+    });
   };
 
   const handleEdit = (product: Product) => {
@@ -90,14 +104,7 @@ export const useStockManagement = () => {
 
   const handleDelete = async (id: string) => {
     if (confirm('Hapus produk ini?')) {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (!error) {
-        loadProducts();
-      }
+      deleteMutation.mutate(id);
     }
   };
 
@@ -109,6 +116,7 @@ export const useStockManagement = () => {
 
   return {
     products,
+    isLoading,
     isAdding,
     editingId,
     formData,
@@ -118,5 +126,6 @@ export const useStockManagement = () => {
     handleEdit,
     handleDelete,
     resetForm,
+    isSubmitting: upsertMutation.isPending,
   };
 };
