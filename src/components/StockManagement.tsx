@@ -2,29 +2,22 @@ import { Modal } from 'antd';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useStockManagement } from '../hooks/useStockManagement';
-import type { Product } from '../types'; // or adjust the import path based on your project structure
+import type { Product } from '../types';
 import { formatCurrency, getStockStatusClass } from '../utils/formatters';
 
 export default function StockManagement() {
   const {
     products,
     editingId,
-    formData,
-    setIsAdding,
-    setFormData,
+    register,
     handleSubmit,
     handleEdit,
     handleDelete,
     resetForm,
+    errors,
   } = useStockManagement();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleModalSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    handleSubmit(e);
-    setIsModalOpen(false);
-  };
 
   const handleModalCancel = () => {
     resetForm();
@@ -32,7 +25,7 @@ export default function StockManagement() {
   };
 
   const handleAddProduct = () => {
-    setIsAdding(true);
+    resetForm();
     setIsModalOpen(true);
   };
 
@@ -63,7 +56,14 @@ export default function StockManagement() {
         footer={null}
         destroyOnClose
       >
-        <form onSubmit={handleModalSubmit} className="space-y-4 mt-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+            setTimeout(() => setIsModalOpen(false), 100);
+          }}
+          className="space-y-4 mt-6"
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -71,11 +71,11 @@ export default function StockManagement() {
               </label>
               <input
                 type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                {...register('name', { required: 'Nama produk harus diisi' })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
+              {errors.name && <span className="text-red-500 text-xs mt-1">{errors.name.message}</span>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -83,11 +83,11 @@ export default function StockManagement() {
               </label>
               <input
                 type="text"
-                required
-                value={formData.sku}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                {...register('sku', { required: 'SKU harus diisi' })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.sku ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
+              {errors.sku && <span className="text-red-500 text-xs mt-1">{errors.sku.message}</span>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -95,12 +95,18 @@ export default function StockManagement() {
               </label>
               <input
                 type="number"
-                required
                 step="0.01"
-                value={formData.purchase_price}
-                onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                {...register('purchase_price', {
+                  required: 'Harga beli harus diisi',
+                  valueAsNumber: true,
+                  min: { value: 0, message: 'Harga beli harus lebih dari 0' },
+                })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.purchase_price ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
+              {errors.purchase_price && (
+                <span className="text-red-500 text-xs mt-1">{errors.purchase_price.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -108,12 +114,18 @@ export default function StockManagement() {
               </label>
               <input
                 type="number"
-                required
                 step="0.01"
-                value={formData.selling_price}
-                onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                {...register('selling_price', {
+                  required: 'Harga jual harus diisi',
+                  valueAsNumber: true,
+                  min: { value: 0, message: 'Harga jual harus lebih dari 0' },
+                })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.selling_price ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
+              {errors.selling_price && (
+                <span className="text-red-500 text-xs mt-1">{errors.selling_price.message}</span>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -121,11 +133,15 @@ export default function StockManagement() {
               </label>
               <input
                 type="number"
-                required
-                value={formData.stock}
-                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                {...register('stock', {
+                  required: 'Stok harus diisi',
+                  valueAsNumber: true,
+                  min: { value: 0, message: 'Stok harus lebih dari atau sama dengan 0' },
+                })}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.stock ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
+              {errors.stock && <span className="text-red-500 text-xs mt-1">{errors.stock.message}</span>}
             </div>
           </div>
           <div className="flex gap-2 justify-end pt-4">
