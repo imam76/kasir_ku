@@ -1,11 +1,13 @@
-import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { Modal } from 'antd';
+import { Edit2, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { useStockManagement } from '../hooks/useStockManagement';
-import { getStockStatusClass, formatCurrency } from '../utils/formatters';
+import type { Product } from '../types'; // or adjust the import path based on your project structure
+import { formatCurrency, getStockStatusClass } from '../utils/formatters';
 
 export default function StockManagement() {
   const {
     products,
-    isAdding,
     editingId,
     formData,
     setIsAdding,
@@ -16,112 +18,133 @@ export default function StockManagement() {
     resetForm,
   } = useStockManagement();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModalSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    handleSubmit(e);
+    setIsModalOpen(false);
+  };
+
+  const handleModalCancel = () => {
+    resetForm();
+    setIsModalOpen(false);
+  };
+
+  const handleAddProduct = () => {
+    setIsAdding(true);
+    setIsModalOpen(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    handleEdit(product);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="p-3 sm:p-4 md:p-6">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Manajemen Stok</h2>
-        {!isAdding && !editingId && (
-          <button
-            onClick={() => setIsAdding(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition-colors text-sm sm:text-base"
-          >
-            <Plus size={18} />
-            <span className="hidden xs:inline sm:inline">Tambah Produk</span>
-            <span className="xs:hidden sm:hidden">Tambah</span>
-          </button>
-        )}
+        <button
+          onClick={handleAddProduct}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition-colors text-sm sm:text-base"
+        >
+          <Plus size={18} />
+          <span className="hidden xs:inline sm:inline">Tambah Produk</span>
+          <span className="xs:hidden sm:hidden">Tambah</span>
+        </button>
       </div>
 
-      {(isAdding || editingId) && (
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-4 sm:mb-6 border border-gray-200">
-          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800">
-            {editingId ? 'Edit Produk' : 'Tambah Produk Baru'}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nama Produk
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  SKU
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.sku}
-                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Harga Beli
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  value={formData.purchase_price}
-                  onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Harga Jual
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  value={formData.selling_price}
-                  onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stok
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                />
-              </div>
+      {/* Modal for Create/Update */}
+      <Modal
+        title={editingId ? 'Edit Produk' : 'Tambah Produk Baru'}
+        open={isModalOpen}
+        onCancel={handleModalCancel}
+        footer={null}
+        destroyOnClose
+      >
+        <form onSubmit={handleModalSubmit} className="space-y-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nama Produk
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
             </div>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition-colors text-sm sm:text-base"
-              >
-                <Save size={16} />
-                Simpan
-              </button>
-              <button
-                type="button"
-                onClick={resetForm}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2 transition-colors text-sm sm:text-base"
-              >
-                <X size={16} />
-                Batal
-              </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                SKU
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.sku}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Harga Beli
+              </label>
+              <input
+                type="number"
+                required
+                step="0.01"
+                value={formData.purchase_price}
+                onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Harga Jual
+              </label>
+              <input
+                type="number"
+                required
+                step="0.01"
+                value={formData.selling_price}
+                onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Stok
+              </label>
+              <input
+                type="number"
+                required
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 justify-end pt-4">
+            <button
+              type="button"
+              onClick={handleModalCancel}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+            >
+              Simpan
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Desktop & Tablet Table View */}
       <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
@@ -189,7 +212,7 @@ export default function StockManagement() {
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleEdit(product)}
+                          onClick={() => handleEditProduct(product)}
                           className="text-blue-600 hover:text-blue-800 transition-colors"
                         >
                           <Edit2 size={18} />
@@ -241,7 +264,7 @@ export default function StockManagement() {
                   </span>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleEdit(product)}
+                      onClick={() => handleEditProduct(product)}
                       className="text-blue-600 hover:text-blue-800 transition-colors"
                     >
                       <Edit2 size={16} />
