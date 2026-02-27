@@ -1,62 +1,93 @@
-import { createRootRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
+import { createRootRoute, Link, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Package, ShoppingCart, History } from 'lucide-react'
+import { Layout, Menu, Switch } from 'antd'
+import { ShoppingCartOutlined, AppstoreOutlined, HistoryOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Loading } from '../components/Loading'
 import { NotFound } from '../components/NotFound'
+import { useTheme } from '../ThemeProvider'
+
+const { Header, Content } = Layout
 
 const RootLayout = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { isDark, toggle } = useTheme()
 
-  const isActive = (path: string) => location.pathname === path
+  const menuItems = [
+    {
+      key: '/',
+      label: 'Home',
+      onClick: () => navigate({ to: '/' }),
+    },
+    {
+      key: '/stock',
+      icon: <AppstoreOutlined />,
+      label: 'Stok',
+      onClick: () => navigate({ to: '/stock' }),
+    },
+    {
+      key: '/transaction',
+      icon: <ShoppingCartOutlined />,
+      label: 'Transaksi',
+      onClick: () => navigate({ to: '/transaction' }),
+    },
+    {
+      key: '/history',
+      icon: <HistoryOutlined />,
+      label: 'Riwayat',
+      onClick: () => navigate({ to: '/history' }),
+    },
+  ]
+
+  // Get current selected key based on pathname
+  const selectedKey = menuItems.find(item => item.key === location.pathname)?.key || '/'
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-gray-800 cursor-pointer"><Link to='/'>Kasirku</Link></h1>
-            <div className="flex gap-2">
-              <Link
-                to="/stock"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${isActive('/stock')
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                <Package size={20} />
-                Stok
-              </Link>
-              <Link
-                to="/transaction"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${isActive('/transaction')
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                <ShoppingCart size={20} />
-                Transaksi
-              </Link>
-              <Link
-                to="/history"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${isActive('/history')
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                <History size={20} />
-                Riwayat
-              </Link>
-            </div>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: '#001529',
+          padding: '0 24px',
+        }}
+      >
+        <Link to="/">
+          <div
+            style={{
+              color: 'white',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+          >
+            Kasirku
           </div>
+        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            selectedKeys={[selectedKey]}
+            items={menuItems}
+            style={{ flex: 1, minWidth: 0 }}
+          />
+          <Switch
+            checked={isDark}
+            onChange={toggle}
+            checkedChildren={<MoonOutlined />}
+            unCheckedChildren={<SunOutlined />}
+          />
         </div>
-      </nav>
+      </Header>
 
-      <main className="max-w-7xl mx-auto">
+      <Content style={{ padding: '24px 50px' }}>
         <Outlet />
-      </main>
+      </Content>
 
       <TanStackRouterDevtools />
-    </div>
+    </Layout>
   )
 }
 
