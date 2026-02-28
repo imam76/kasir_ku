@@ -77,6 +77,9 @@ const RootLayout = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Header
         style={{
+          position: 'fixed',
+          zIndex: 10,
+          width: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -156,7 +159,7 @@ const RootLayout = () => {
         </Drawer>
       )}
 
-      <Content style={{ padding: '16px', maxWidth: '100%' }}>
+      <Content style={{ padding: '16px', paddingTop: '80px', maxWidth: '100%' }}>
         <Outlet />
       </Content>
 
