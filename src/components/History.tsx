@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { Receipt, ChevronDown, ChevronUp } from 'lucide-react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useHistory } from '../hooks/useHistory';
@@ -17,17 +17,25 @@ export default function History() {
     loadMore
   } = useHistory();
   const parentRef = useRef<HTMLDivElement>(null);
+  const [scrollMargin, setScrollMargin] = useState(0);
+
+  useLayoutEffect(() => {
+    if (parentRef.current) {
+      setScrollMargin(parentRef.current.offsetTop);
+    }
+  }, []);
 
   const rowVirtualizer = useWindowVirtualizer({
     count: transactions.length,
     estimateSize: () => 120,
     overscan: 5,
-    scrollMargin: parentRef.current?.offsetTop ?? 0,
+    scrollMargin,
   });
 
   // Load more when reaching the end
   useEffect(() => {
-    const lastItem = rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1];
+    const virtualItems = rowVirtualizer.getVirtualItems();
+    const lastItem = virtualItems[virtualItems.length - 1];
     if (!lastItem) return;
 
     if (
@@ -42,7 +50,7 @@ export default function History() {
     isFetchingNextPage,
     loadMore,
     transactions.length,
-    rowVirtualizer.getVirtualItems(),
+    rowVirtualizer,
   ]);
 
   // Re-measure when expansion state changes
