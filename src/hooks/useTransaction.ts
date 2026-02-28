@@ -127,6 +127,7 @@ export const useTransaction = () => {
     removeFromCart,
     calculateTotal,
     handleCheckout,
+    clearCart: reset,
     setSearchTerm,
     setPaymentAmount,
     setShowPayment,

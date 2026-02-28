@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Button, DatePicker, Space, Table, Statistic, Empty, Tag } from 'antd';
+import { Card, Button, DatePicker, Space, Table, Statistic, Empty, Tag, Select } from 'antd';
 import { DownloadOutlined, FilterOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { usePurchaseReport } from '../hooks/useReports';
@@ -10,11 +10,15 @@ export default function PurchaseReport() {
   const [startDate, setStartDate] = useState<string | undefined>(undefined);
   const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+  const [selectedHelper, setSelectedHelper] = useState<string | undefined>(undefined);
 
   const { data, isLoading, error } = usePurchaseReport(startDate, endDate);
 
   const handleDateRangeChange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
     setDateRange(dates);
+    if (selectedHelper !== 'custom') {
+      setSelectedHelper(undefined);
+    }
     if (dates && dates[0] && dates[1]) {
       setStartDate(dates[0].format('YYYY-MM-DD'));
       setEndDate(dates[1].format('YYYY-MM-DD'));
@@ -24,10 +28,52 @@ export default function PurchaseReport() {
     }
   };
 
+  const handleHelperChange = (value: string) => {
+    setSelectedHelper(value);
+    let range: [dayjs.Dayjs, dayjs.Dayjs] | null = null;
+
+    switch (value) {
+      case 'today':
+        range = [dayjs().startOf('day'), dayjs().endOf('day')];
+        break;
+      case 'yesterday':
+        range = [dayjs().subtract(1, 'day').startOf('day'), dayjs().subtract(1, 'day').endOf('day')];
+        break;
+      case 'this-week':
+        range = [dayjs().startOf('week'), dayjs().endOf('week')];
+        break;
+      case 'last-week':
+        range = [dayjs().subtract(1, 'week').startOf('week'), dayjs().subtract(1, 'week').endOf('week')];
+        break;
+      case 'this-month':
+        range = [dayjs().startOf('month'), dayjs().endOf('month')];
+        break;
+      case 'last-month':
+        range = [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')];
+        break;
+      case 'custom':
+        // Don't set range, let the user pick from DatePicker
+        return;
+      default:
+        range = null;
+    }
+
+    if (range) {
+      setDateRange(range);
+      setStartDate(range[0].format('YYYY-MM-DD'));
+      setEndDate(range[1].format('YYYY-MM-DD'));
+    } else {
+      setDateRange(null);
+      setStartDate(undefined);
+      setEndDate(undefined);
+    }
+  };
+
   const handleReset = () => {
     setDateRange(null);
     setStartDate(undefined);
     setEndDate(undefined);
+    setSelectedHelper(undefined);
   };
 
   const handleDownload = () => {
@@ -133,12 +179,30 @@ export default function PurchaseReport() {
           <Space wrap>
             <FilterOutlined className="text-gray-600" />
             <span className="font-semibold">Filter Tanggal:</span>
-            <DatePicker.RangePicker
-              value={dateRange}
-              onChange={handleDateRangeChange}
-              format="YYYY-MM-DD"
-              placeholder={['Mulai', 'Hingga']}
+            <Select
+              placeholder="Pilih Periode"
+              style={{ width: 150 }}
+              value={selectedHelper}
+              onChange={handleHelperChange}
+              allowClear
+              options={[
+                { value: 'today', label: 'Hari Ini' },
+                { value: 'yesterday', label: 'Kemarin' },
+                { value: 'this-week', label: 'Minggu Ini' },
+                { value: 'last-week', label: 'Minggu Lalu' },
+                { value: 'this-month', label: 'Bulan Ini' },
+                { value: 'last-month', label: 'Bulan Lalu' },
+                { value: 'custom', label: 'Custom Range' },
+              ]}
             />
+            {selectedHelper === 'custom' && (
+              <DatePicker.RangePicker
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                format="YYYY-MM-DD"
+                placeholder={['Mulai', 'Hingga']}
+              />
+            )}
             <Button onClick={handleReset}>Reset</Button>
             <Button
               type="primary"

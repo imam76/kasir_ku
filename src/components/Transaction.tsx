@@ -16,6 +16,7 @@ export default function Transaction() {
     removeFromCart,
     calculateTotal,
     handleCheckout,
+    clearCart,
     setSearchTerm,
     setPaymentAmount,
     setShowPayment,
@@ -81,7 +82,18 @@ export default function Transaction() {
         {/* Desktop Cart Sidebar — hidden on mobile/tablet */}
         <div className="hidden lg:block lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 sticky top-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Keranjang</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Keranjang</h3>
+              {cart.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors flex items-center gap-1"
+                >
+                  <Trash2 size={14} />
+                  Bersihkan
+                </button>
+              )}
+            </div>
 
             <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
               {cart.map((item) => (
@@ -206,7 +218,18 @@ export default function Transaction() {
           />
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-800">Keranjang</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-gray-800">Keranjang</h3>
+                {cart.length > 0 && (
+                  <button
+                    onClick={clearCart}
+                    className="text-red-500 hover:text-red-700 text-xs font-medium transition-colors flex items-center gap-1 bg-red-50 px-2 py-1 rounded"
+                  >
+                    <Trash2 size={12} />
+                    Bersihkan
+                  </button>
+                )}
+              </div>
               <button
                 onClick={() => setCartOpen(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
