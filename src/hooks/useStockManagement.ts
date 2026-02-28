@@ -16,7 +16,6 @@ interface FormData {
 export const useStockManagement = () => {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [previousStock, setPreviousStock] = useState<number>(0);
   const {
     handleSubmit,
     reset,
@@ -150,7 +149,6 @@ export const useStockManagement = () => {
 
   const handleEdit = (product: Product) => {
     setEditingId(product.id);
-    setPreviousStock(product.stock);
     setValue('name', product.name);
     setValue('purchase_price', product.purchase_price);
     setValue('selling_price', product.selling_price);
@@ -168,7 +166,6 @@ export const useStockManagement = () => {
   const resetFormData = () => {
     reset();
     setEditingId(null);
-    setPreviousStock(0);
   };
 
   return {

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { Transaction, TransactionItem, StockPurchase } from '../types';
+import { Transaction, StockPurchase } from '../types';
 
 interface SalesReportData {
   transactions: Transaction[];
