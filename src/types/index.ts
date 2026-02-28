@@ -31,7 +31,20 @@ export interface TransactionItem {
   created_at: string;
 }
 
+export interface StockPurchase {
+  id: string;
+  product_id: string;
+  product_name: string;
+  sku: string;
+  quantity: number;
+  cost_per_unit: number;
+  total_cost: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;
 }
+

@@ -1,7 +1,7 @@
 import { createRootRoute, Link, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Layout, Menu, Switch, Drawer, Button, Grid } from 'antd'
-import { ShoppingCartOutlined, AppstoreOutlined, HistoryOutlined, MoonOutlined, SunOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons'
+import { ShoppingCartOutlined, AppstoreOutlined, HistoryOutlined, FileTextOutlined, MoonOutlined, SunOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import { Loading } from '../components/Loading'
 import { NotFound } from '../components/NotFound'
@@ -50,6 +50,24 @@ const RootLayout = () => {
       label: 'Riwayat',
       onClick: () => {
         navigate({ to: '/history' })
+        setMobileMenuOpen(false)
+      },
+    },
+    {
+      key: '/sales-report',
+      icon: <FileTextOutlined />,
+      label: 'Laporan Penjualan',
+      onClick: () => {
+        navigate({ to: '/sales-report' })
+        setMobileMenuOpen(false)
+      },
+    },
+    {
+      key: '/purchase-report',
+      icon: <FileTextOutlined />,
+      label: 'Laporan Pembelian',
+      onClick: () => {
+        navigate({ to: '/purchase-report' })
         setMobileMenuOpen(false)
       },
     },

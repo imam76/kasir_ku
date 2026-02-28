@@ -166,6 +166,25 @@ export default function StockManagement() {
                 )}
               />
             </Form.Item>
+
+            <Form.Item
+              label="Qty Pembelian (opsional)"
+              validateStatus={errors.purchase_quantity ? 'error' : ''}
+              help={errors.purchase_quantity?.message}
+            >
+              <Controller
+                name="purchase_quantity"
+                control={control}
+                render={({ field }) => (
+                  <InputNumber
+                    {...field}
+                    className="w-full"
+                    placeholder="Jumlah item yang dibeli (untuk laporan)"
+                    min={0}
+                  />
+                )}
+              />
+            </Form.Item>
           </div>
 
           <div className="flex gap-2 justify-end pt-2">

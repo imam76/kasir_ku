@@ -15,6 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 
 const TransactionLazyRouteImport = createFileRoute('/transaction')()
 const StockLazyRouteImport = createFileRoute('/stock')()
+const SalesReportLazyRouteImport = createFileRoute('/sales-report')()
+const PurchaseReportLazyRouteImport = createFileRoute('/purchase-report')()
 const HistoryLazyRouteImport = createFileRoute('/history')()
 const SplatLazyRouteImport = createFileRoute('/$')()
 
@@ -28,6 +30,18 @@ const StockLazyRoute = StockLazyRouteImport.update({
   path: '/stock',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/stock.lazy').then((d) => d.Route))
+const SalesReportLazyRoute = SalesReportLazyRouteImport.update({
+  id: '/sales-report',
+  path: '/sales-report',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/sales-report.lazy').then((d) => d.Route))
+const PurchaseReportLazyRoute = PurchaseReportLazyRouteImport.update({
+  id: '/purchase-report',
+  path: '/purchase-report',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/purchase-report.lazy').then((d) => d.Route),
+)
 const HistoryLazyRoute = HistoryLazyRouteImport.update({
   id: '/history',
   path: '/history',
@@ -48,6 +62,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatLazyRoute
   '/history': typeof HistoryLazyRoute
+  '/purchase-report': typeof PurchaseReportLazyRoute
+  '/sales-report': typeof SalesReportLazyRoute
   '/stock': typeof StockLazyRoute
   '/transaction': typeof TransactionLazyRoute
 }
@@ -55,6 +71,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatLazyRoute
   '/history': typeof HistoryLazyRoute
+  '/purchase-report': typeof PurchaseReportLazyRoute
+  '/sales-report': typeof SalesReportLazyRoute
   '/stock': typeof StockLazyRoute
   '/transaction': typeof TransactionLazyRoute
 }
@@ -63,21 +81,47 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatLazyRoute
   '/history': typeof HistoryLazyRoute
+  '/purchase-report': typeof PurchaseReportLazyRoute
+  '/sales-report': typeof SalesReportLazyRoute
   '/stock': typeof StockLazyRoute
   '/transaction': typeof TransactionLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$' | '/history' | '/stock' | '/transaction'
+  fullPaths:
+    | '/'
+    | '/$'
+    | '/history'
+    | '/purchase-report'
+    | '/sales-report'
+    | '/stock'
+    | '/transaction'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$' | '/history' | '/stock' | '/transaction'
-  id: '__root__' | '/' | '/$' | '/history' | '/stock' | '/transaction'
+  to:
+    | '/'
+    | '/$'
+    | '/history'
+    | '/purchase-report'
+    | '/sales-report'
+    | '/stock'
+    | '/transaction'
+  id:
+    | '__root__'
+    | '/'
+    | '/$'
+    | '/history'
+    | '/purchase-report'
+    | '/sales-report'
+    | '/stock'
+    | '/transaction'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatLazyRoute: typeof SplatLazyRoute
   HistoryLazyRoute: typeof HistoryLazyRoute
+  PurchaseReportLazyRoute: typeof PurchaseReportLazyRoute
+  SalesReportLazyRoute: typeof SalesReportLazyRoute
   StockLazyRoute: typeof StockLazyRoute
   TransactionLazyRoute: typeof TransactionLazyRoute
 }
@@ -96,6 +140,20 @@ declare module '@tanstack/react-router' {
       path: '/stock'
       fullPath: '/stock'
       preLoaderRoute: typeof StockLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sales-report': {
+      id: '/sales-report'
+      path: '/sales-report'
+      fullPath: '/sales-report'
+      preLoaderRoute: typeof SalesReportLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase-report': {
+      id: '/purchase-report'
+      path: '/purchase-report'
+      fullPath: '/purchase-report'
+      preLoaderRoute: typeof PurchaseReportLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -126,6 +184,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatLazyRoute: SplatLazyRoute,
   HistoryLazyRoute: HistoryLazyRoute,
+  PurchaseReportLazyRoute: PurchaseReportLazyRoute,
+  SalesReportLazyRoute: SalesReportLazyRoute,
   StockLazyRoute: StockLazyRoute,
   TransactionLazyRoute: TransactionLazyRoute,
 }
