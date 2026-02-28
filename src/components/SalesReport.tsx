@@ -122,7 +122,7 @@ export default function SalesReport() {
 
       {/* Filter Section */}
       <Card className="mb-6">
-        <Space direction="vertical" className="w-full" size="large">
+        <Space orientation="vertical" className="w-full" size="large">
           <Space wrap>
             <FilterOutlined className="text-gray-600" />
             <span className="font-semibold">Filter Tanggal:</span>

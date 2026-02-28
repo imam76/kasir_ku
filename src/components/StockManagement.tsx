@@ -1,10 +1,10 @@
 import { Form, Modal, Input, InputNumber } from 'antd';
-import { Edit2, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useStockManagement } from '../hooks/useStockManagement';
 import type { Product } from '../types';
-import { formatCurrency, getStockStatusClass } from '../utils/formatters';
 import { Controller } from 'react-hook-form';
+import StockTable from './StockTable';
 
 export default function StockManagement() {
   const {
@@ -206,157 +206,11 @@ export default function StockManagement() {
       </Modal>
 
       {/* Desktop & Tablet Table View */}
-      <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  SKU
-                </th>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nama Produk
-                </th>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga Beli
-                </th>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Harga Jual
-                </th>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Margin
-                </th>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stok
-                </th>
-                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {products.map((product) => {
-                const margin = product.selling_price - product.purchase_price;
-                const marginPercent = product.purchase_price > 0
-                  ? ((margin / product.purchase_price) * 100).toFixed(1)
-                  : '0';
-
-                return (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {product.sku}
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {product.name}
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      Rp {formatCurrency(product.purchase_price)}
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      Rp {formatCurrency(product.selling_price)}
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 py-1 rounded font-semibold ${margin > 0
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                        }`}>
-                        Rp {formatCurrency(margin)} ({marginPercent}%)
-                      </span>
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className={`px-2 py-1 rounded ${getStockStatusClass(product.stock)}`}>
-                        {product.stock}
-                      </span>
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditProduct(product)}
-                          className="text-blue-600 hover:text-blue-800 transition-colors"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="text-red-600 hover:text-red-800 transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        {products.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            Belum ada produk. Tambahkan produk pertama Anda!
-          </div>
-        )}
-      </div>
-
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-3">
-        {products.length === 0 && (
-          <div className="bg-white rounded-lg shadow-md border border-gray-200 text-center py-8 text-gray-500 text-sm">
-            Belum ada produk. Tambahkan produk pertama Anda!
-          </div>
-        )}
-        {products.map((product) => {
-          const margin = product.selling_price - product.purchase_price;
-          const marginPercent = product.purchase_price > 0
-            ? ((margin / product.purchase_price) * 100).toFixed(1)
-            : '0';
-
-          return (
-            <div key={product.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <p className="text-sm font-bold text-gray-900">{product.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">SKU: {product.sku}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStockStatusClass(product.stock)}`}>
-                    Stok: {product.stock}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEditProduct(product)}
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="text-red-600 hover:text-red-800 transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-gray-50 rounded p-2">
-                  <p className="text-gray-500 mb-0.5">Harga Beli</p>
-                  <p className="font-semibold text-gray-900">Rp {formatCurrency(product.purchase_price)}</p>
-                </div>
-                <div className="bg-gray-50 rounded p-2">
-                  <p className="text-gray-500 mb-0.5">Harga Jual</p>
-                  <p className="font-semibold text-gray-900">Rp {formatCurrency(product.selling_price)}</p>
-                </div>
-                <div className={`rounded p-2 ${margin > 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                  <p className={`mb-0.5 ${margin > 0 ? 'text-green-600' : 'text-red-600'}`}>Margin</p>
-                  <p className={`font-semibold ${margin > 0 ? 'text-green-800' : 'text-red-800'}`}>
-                    {marginPercent}%
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <StockTable
+        products={products}
+        onEdit={handleEditProduct}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

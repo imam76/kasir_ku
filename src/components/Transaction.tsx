@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, DollarSign, X } from 'lucide-react';
+import { Modal, Result } from 'antd';
 import { useTransaction } from '../hooks/useTransaction';
 import { formatCurrency } from '../utils/formatters';
 
@@ -18,6 +19,8 @@ export default function Transaction() {
     setSearchTerm,
     setPaymentAmount,
     setShowPayment,
+    modal,
+    closeModal,
   } = useTransaction();
 
   // Mobile cart drawer state (new UI only, no logic change)
@@ -31,13 +34,24 @@ export default function Transaction() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
-            <input
-              type="text"
-              placeholder="Cari produk (nama atau SKU)..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Cari produk (nama atau SKU)..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Hapus pencarian"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Responsive: 2 cols on mobile, 3 on tablet+ */}
@@ -294,6 +308,47 @@ export default function Transaction() {
           </div>
         </div>
       )}
+
+      {/* Modal for alerts */}
+      <Modal
+        title={modal.title}
+        open={modal.visible}
+        onOk={closeModal}
+        onCancel={closeModal}
+        footer={[
+          <button
+            key="ok"
+            onClick={closeModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
+            OK
+          </button>,
+        ]}
+      >
+        <Result
+          status={modal.type as 'success' | 'error' | 'warning' | 'info'}
+          title={modal.title}
+          subTitle={modal.message}
+          extra={
+            modal.type === 'success' && modal.data ? (
+              <div className="text-left space-y-2 mt-4">
+                <p className="text-gray-700">
+                  <span className="font-semibold">Nomor Transaksi:</span> {modal.data?.transactionNumber}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Total:</span> Rp {formatCurrency(modal.data?.total)}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Dibayar:</span> Rp {formatCurrency(modal.data?.payment)}
+                </p>
+                <p className="text-green-600 font-semibold">
+                  <span>Kembalian:</span> Rp {formatCurrency(modal.data?.change)}
+                </p>
+              </div>
+            ) : null
+          }
+        />
+      </Modal>
     </div>
   );
 }

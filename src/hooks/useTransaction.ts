@@ -2,12 +2,26 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Product, CartItem } from '../types';
 
+interface ModalState {
+  visible: boolean;
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  data?: Record<string, any>;
+}
+
 export const useTransaction = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [showPayment, setShowPayment] = useState(false);
+  const [modal, setModal] = useState<ModalState>({
+    visible: false,
+    type: 'info',
+    title: '',
+    message: '',
+  });
 
   useEffect(() => {
     loadProducts();
@@ -24,6 +38,19 @@ export const useTransaction = () => {
     }
   };
 
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    message: string,
+    data?: Record<string, any>
+  ) => {
+    setModal({ visible: true, type, title, message, data });
+  };
+
+  const closeModal = () => {
+    setModal({ ...modal, visible: false });
+  };
+
   const filteredProducts = products.filter(
     (p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -32,7 +59,7 @@ export const useTransaction = () => {
 
   const addToCart = (product: Product) => {
     if (product.stock < 1) {
-      alert('Stok tidak tersedia!');
+      showModal('error', 'Stok Tidak Tersedia', 'Stok produk ini tidak tersedia saat ini.');
       return;
     }
 
@@ -40,7 +67,7 @@ export const useTransaction = () => {
 
     if (existingItem) {
       if (existingItem.quantity >= product.stock) {
-        alert('Stok tidak mencukupi!');
+        showModal('error', 'Stok Tidak Mencukupi', `Stok hanya tersedia ${product.stock} unit.`);
         return;
       }
       setCart(
@@ -60,7 +87,7 @@ export const useTransaction = () => {
     if (!item) return;
 
     if (newQuantity > item.product.stock) {
-      alert('Stok tidak mencukupi!');
+      showModal('error', 'Stok Tidak Mencukupi', `Stok hanya tersedia ${item.product.stock} unit.`);
       return;
     }
 
@@ -89,7 +116,7 @@ export const useTransaction = () => {
     const payment = parseFloat(paymentAmount);
 
     if (isNaN(payment) || payment < total) {
-      alert('Jumlah pembayaran tidak valid atau kurang!');
+      showModal('error', 'Pembayaran Tidak Valid', 'Jumlah pembayaran tidak valid atau kurang!');
       return;
     }
 
@@ -108,7 +135,7 @@ export const useTransaction = () => {
       .single();
 
     if (transError || !transaction) {
-      alert('Gagal membuat transaksi!');
+      showModal('error', 'Gagal Membuat Transaksi', 'Terjadi kesalahan saat membuat transaksi. Silakan coba lagi.');
       return;
     }
 
@@ -128,7 +155,7 @@ export const useTransaction = () => {
       .insert(transactionItems);
 
     if (itemsError) {
-      alert('Gagal menyimpan item transaksi!');
+      showModal('error', 'Gagal Menyimpan Item', 'Terjadi kesalahan saat menyimpan item transaksi. Silakan coba lagi.');
       return;
     }
 
@@ -139,7 +166,12 @@ export const useTransaction = () => {
         .eq('id', item.product.id);
     }
 
-    alert(`Transaksi berhasil!\n\nTotal: Rp ${total.toLocaleString('id-ID')}\nBayar: Rp ${payment.toLocaleString('id-ID')}\nKembali: Rp ${change.toLocaleString('id-ID')}`);
+    showModal('success', 'Transaksi Berhasil', 'Transaksi telah berhasil disimpan.', {
+      transactionNumber,
+      total,
+      payment,
+      change,
+    });
 
     setCart([]);
     setPaymentAmount('');
@@ -162,5 +194,7 @@ export const useTransaction = () => {
     setSearchTerm,
     setPaymentAmount,
     setShowPayment,
+    modal,
+    closeModal,
   };
 };
