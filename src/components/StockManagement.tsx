@@ -1,15 +1,16 @@
-import { Modal } from 'antd';
+import { Form, Modal, Input, InputNumber } from 'antd';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useStockManagement } from '../hooks/useStockManagement';
 import type { Product } from '../types';
 import { formatCurrency, getStockStatusClass } from '../utils/formatters';
+import { Controller } from 'react-hook-form';
 
 export default function StockManagement() {
   const {
     products,
     editingId,
-    register,
+    control,
     handleSubmit,
     handleEdit,
     handleDelete,
@@ -56,95 +57,118 @@ export default function StockManagement() {
         footer={null}
         destroyOnClose
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-            setTimeout(() => setIsModalOpen(false), 100);
+        <Form
+          layout="vertical"
+          onFinish={async () => {
+            try {
+              await handleSubmit();
+              setIsModalOpen(false);
+            } catch (error) {
+              console.error('Failed to save product:', error);
+            }
           }}
-          className="space-y-4 mt-6"
+          className="mt-6"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nama Produk
-              </label>
-              <input
-                type="text"
-                {...register('name', { required: 'Nama produk harus diisi' })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.name ? 'border-red-500' : 'border-gray-300'
-                  }`}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+            <Form.Item
+              label="Nama Produk"
+              validateStatus={errors.name ? 'error' : ''}
+              help={errors.name?.message}
+            >
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: 'Nama produk harus diisi' }}
+                render={({ field }) => <Input {...field} />}
               />
-              {errors.name && <span className="text-red-500 text-xs mt-1">{errors.name.message}</span>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                SKU
-              </label>
-              <input
-                type="text"
-                {...register('sku', { required: 'SKU harus diisi' })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.sku ? 'border-red-500' : 'border-gray-300'
-                  }`}
+            </Form.Item>
+
+            <Form.Item
+              label="SKU"
+              validateStatus={errors.sku ? 'error' : ''}
+              help={errors.sku?.message}
+            >
+              <Controller
+                name="sku"
+                control={control}
+                rules={{ required: 'SKU harus diisi' }}
+                render={({ field }) => <Input {...field} />}
               />
-              {errors.sku && <span className="text-red-500 text-xs mt-1">{errors.sku.message}</span>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Harga Beli
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                {...register('purchase_price', {
+            </Form.Item>
+
+            <Form.Item
+              label="Harga Beli"
+              validateStatus={errors.purchase_price ? 'error' : ''}
+              help={errors.purchase_price?.message}
+            >
+              <Controller
+                name="purchase_price"
+                control={control}
+                rules={{
                   required: 'Harga beli harus diisi',
-                  valueAsNumber: true,
                   min: { value: 0, message: 'Harga beli harus lebih dari 0' },
-                })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.purchase_price ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                }}
+                render={({ field }) => (
+                  <InputNumber
+                    {...field}
+                    className="w-full"
+                    placeholder="Masukkan harga beli"
+                    step={0.01}
+                    min={0}
+                  />
+                )}
               />
-              {errors.purchase_price && (
-                <span className="text-red-500 text-xs mt-1">{errors.purchase_price.message}</span>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Harga Jual
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                {...register('selling_price', {
+            </Form.Item>
+
+            <Form.Item
+              label="Harga Jual"
+              validateStatus={errors.selling_price ? 'error' : ''}
+              help={errors.selling_price?.message}
+            >
+              <Controller
+                name="selling_price"
+                control={control}
+                rules={{
                   required: 'Harga jual harus diisi',
-                  valueAsNumber: true,
                   min: { value: 0, message: 'Harga jual harus lebih dari 0' },
-                })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.selling_price ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                }}
+                render={({ field }) => (
+                  <InputNumber
+                    {...field}
+                    className="w-full"
+                    placeholder="Masukkan harga jual"
+                    step={0.01}
+                    min={0}
+                  />
+                )}
               />
-              {errors.selling_price && (
-                <span className="text-red-500 text-xs mt-1">{errors.selling_price.message}</span>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Stok
-              </label>
-              <input
-                type="number"
-                {...register('stock', {
+            </Form.Item>
+
+            <Form.Item
+              label="Stok"
+              validateStatus={errors.stock ? 'error' : ''}
+              help={errors.stock?.message}
+            >
+              <Controller
+                name="stock"
+                control={control}
+                rules={{
                   required: 'Stok harus diisi',
-                  valueAsNumber: true,
                   min: { value: 0, message: 'Stok harus lebih dari atau sama dengan 0' },
-                })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.stock ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                }}
+                render={({ field }) => (
+                  <InputNumber
+                    {...field}
+                    className="w-full"
+                    placeholder="Masukkan stok"
+                    min={0}
+                  />
+                )}
               />
-              {errors.stock && <span className="text-red-500 text-xs mt-1">{errors.stock.message}</span>}
-            </div>
+            </Form.Item>
           </div>
-          <div className="flex gap-2 justify-end pt-4">
+
+          <div className="flex gap-2 justify-end pt-2">
             <button
               type="button"
               onClick={handleModalCancel}
@@ -159,7 +183,7 @@ export default function StockManagement() {
               Simpan
             </button>
           </div>
-        </form>
+        </Form>
       </Modal>
 
       {/* Desktop & Tablet Table View */}

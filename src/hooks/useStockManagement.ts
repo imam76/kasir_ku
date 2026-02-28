@@ -6,9 +6,9 @@ import { Product } from '../types';
 
 interface FormData {
   name: string;
-  purchase_price: number;
-  selling_price: number;
-  stock: number;
+  purchase_price: number | undefined;
+  selling_price: number | undefined;
+  stock: number | undefined;
   sku: string;
 }
 
@@ -16,18 +16,18 @@ export const useStockManagement = () => {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const {
-    register,
     handleSubmit,
     reset,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
       name: '',
-      purchase_price: 0,
-      selling_price: 0,
-      stock: 0,
+      purchase_price: undefined,
+      selling_price: undefined,
+      stock: undefined,
       sku: '',
     },
   });
@@ -89,11 +89,11 @@ export const useStockManagement = () => {
   });
 
   const onSubmit = async (data: FormData) => {
-    upsertMutation.mutate({
+    await upsertMutation.mutateAsync({
       name: data.name,
-      purchase_price: data.purchase_price,
-      selling_price: data.selling_price,
-      stock: data.stock,
+      purchase_price: data.purchase_price ?? 0,
+      selling_price: data.selling_price ?? 0,
+      stock: data.stock ?? 0,
       sku: data.sku,
     });
   };
@@ -122,7 +122,7 @@ export const useStockManagement = () => {
     products,
     isLoading,
     editingId,
-    register,
+    control,
     handleSubmit: handleSubmit(onSubmit),
     handleEdit,
     handleDelete,
