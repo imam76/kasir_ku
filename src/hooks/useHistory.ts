@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Transaction, TransactionItem } from '../types';
 
@@ -10,11 +10,7 @@ export const useHistory = () => {
   const [transactions, setTransactions] = useState<TransactionWithItems[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadTransactions();
-  }, []);
-
-  const loadTransactions = async () => {
+  const loadTransactions = useCallback(async () => {
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
@@ -23,22 +19,29 @@ export const useHistory = () => {
     if (!error && data) {
       setTransactions(data);
     }
-  };
+  }, []);
 
-  const loadTransactionItems = async (transactionId: string) => {
+  const loadTransactionItems = useCallback(async (transactionId: string) => {
     const { data, error } = await supabase
       .from('transaction_items')
       .select('*')
       .eq('transaction_id', transactionId);
 
     if (!error && data) {
-      setTransactions(
-        transactions.map((t) =>
+      setTransactions((prev) =>
+        prev.map((t) =>
           t.id === transactionId ? { ...t, items: data } : t
         )
       );
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      await loadTransactions();
+    };
+    init();
+  }, [loadTransactions]);
 
   const toggleExpand = (transactionId: string) => {
     if (expandedId === transactionId) {

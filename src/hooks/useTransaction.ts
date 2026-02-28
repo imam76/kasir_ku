@@ -1,33 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { Product, CartItem } from '../types';
-
-interface ModalState {
-  visible: boolean;
-  type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-  data?: Record<string, any>;
-}
+import { useTransactionStore } from '../store/transactionStore';
 
 export const useTransaction = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [showPayment, setShowPayment] = useState(false);
-  const [modal, setModal] = useState<ModalState>({
-    visible: false,
-    type: 'info',
-    title: '',
-    message: '',
-  });
+  const {
+    products,
+    cart,
+    searchTerm,
+    paymentAmount,
+    showPayment,
+    modal,
+    setProducts,
+    setSearchTerm,
+    setPaymentAmount,
+    setShowPayment,
+    showModal,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    closeModal,
+    reset,
+  } = useTransactionStore();
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -36,80 +31,23 @@ export const useTransaction = () => {
     if (!error && data) {
       setProducts(data);
     }
-  };
+  }, [setProducts]);
 
-  const showModal = (
-    type: 'success' | 'error' | 'warning' | 'info',
-    title: string,
-    message: string,
-    data?: Record<string, any>
-  ) => {
-    setModal({ visible: true, type, title, message, data });
-  };
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
-  const closeModal = () => {
-    setModal({ ...modal, visible: false });
-  };
-
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const addToCart = (product: Product) => {
-    if (product.stock < 1) {
-      showModal('error', 'Stok Tidak Tersedia', 'Stok produk ini tidak tersedia saat ini.');
-      return;
-    }
-
-    const existingItem = cart.find((item) => item.product.id === product.id);
-
-    if (existingItem) {
-      if (existingItem.quantity >= product.stock) {
-        showModal('error', 'Stok Tidak Mencukupi', `Stok hanya tersedia ${product.stock} unit.`);
-        return;
-      }
-      setCart(
-        cart.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      setCart([...cart, { product, quantity: 1 }]);
-    }
-  };
-
-  const updateQuantity = (productId: string, newQuantity: number) => {
-    const item = cart.find((i) => i.product.id === productId);
-    if (!item) return;
-
-    if (newQuantity > item.product.stock) {
-      showModal('error', 'Stok Tidak Mencukupi', `Stok hanya tersedia ${item.product.stock} unit.`);
-      return;
-    }
-
-    if (newQuantity < 1) {
-      removeFromCart(productId);
-      return;
-    }
-
-    setCart(
-      cart.map((item) =>
-        item.product.id === productId ? { ...item, quantity: newQuantity } : item
-      )
+  const filteredProducts = useMemo(() => {
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.sku.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  };
+  }, [products, searchTerm]);
 
-  const removeFromCart = (productId: string) => {
-    setCart(cart.filter((item) => item.product.id !== productId));
-  };
-
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     return cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
-  };
+  }, [cart]);
 
   const handleCheckout = async () => {
     const total = calculateTotal();
@@ -173,9 +111,7 @@ export const useTransaction = () => {
       change,
     });
 
-    setCart([]);
-    setPaymentAmount('');
-    setShowPayment(false);
+    reset();
     loadProducts();
   };
 

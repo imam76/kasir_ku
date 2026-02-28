@@ -336,13 +336,13 @@ export default function Transaction() {
                   <span className="font-semibold">Nomor Transaksi:</span> {modal.data?.transactionNumber}
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-semibold">Total:</span> Rp {formatCurrency(modal.data?.total)}
+                  <span className="font-semibold">Total:</span> Rp {formatCurrency(modal.data?.total || 0)}
                 </p>
                 <p className="text-gray-700">
-                  <span className="font-semibold">Dibayar:</span> Rp {formatCurrency(modal.data?.payment)}
+                  <span className="font-semibold">Dibayar:</span> Rp {formatCurrency(modal.data?.payment || 0)}
                 </p>
                 <p className="text-green-600 font-semibold">
-                  <span>Kembalian:</span> Rp {formatCurrency(modal.data?.change)}
+                  <span>Kembalian:</span> Rp {formatCurrency(modal.data?.change || 0)}
                 </p>
               </div>
             ) : null

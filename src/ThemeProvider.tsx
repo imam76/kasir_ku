@@ -1,24 +1,10 @@
 // ThemeProvider.tsx
 // Context + hook untuk switch light/dark theme di seluruh app
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { ConfigProvider } from "antd";
 import { lightTheme, darkTheme, type ThemeMode } from "./theme";
-
-// ── Context ──────────────────────────────────────────────────
-interface ThemeContextValue {
-  mode: ThemeMode;
-  toggle: () => void;
-  setMode: (mode: ThemeMode) => void;
-  isDark: boolean;
-}
-
-const ThemeContext = createContext<ThemeContextValue>({
-  mode: "light",
-  toggle: () => { },
-  setMode: () => { },
-  isDark: false,
-});
+import { ThemeContext } from "./hooks/useTheme";
 
 // ── Provider ─────────────────────────────────────────────────
 interface ThemeProviderProps {
@@ -27,7 +13,7 @@ interface ThemeProviderProps {
   storageKey?: string; // localStorage key untuk persist
 }
 
-export function ThemeProvider({
+function ThemeProviderComponent({
   children,
   defaultMode = "light",
   storageKey = "kasir-theme-mode",
@@ -59,7 +45,4 @@ export function ThemeProvider({
   );
 }
 
-// ── Hook ─────────────────────────────────────────────────────
-export function useTheme() {
-  return useContext(ThemeContext);
-}
+export const ThemeProvider = ThemeProviderComponent;

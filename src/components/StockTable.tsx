@@ -69,20 +69,6 @@ export default function StockTable({ products, onEdit, onDelete }: StockTablePro
     setCurrentPage(1);
   };
 
-  const SortableHeader = ({ field, label }: { field: SortField; label: string }) => (
-    <th
-      onClick={() => handleSort(field)}
-      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-    >
-      <div className="flex items-center gap-2">
-        {label}
-        {sortField === field && (
-          <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
-        )}
-      </div>
-    </th>
-  );
-
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -103,14 +89,64 @@ export default function StockTable({ products, onEdit, onDelete }: StockTablePro
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <SortableHeader field="sku" label="SKU" />
-                <SortableHeader field="name" label="Nama Produk" />
-                <SortableHeader field="purchase_price" label="Harga Beli" />
-                <SortableHeader field="selling_price" label="Harga Jual" />
+                <th
+                  onClick={() => handleSort('sku')}
+                  className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    SKU
+                    {sortField === 'sku' && (
+                      <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('name')}
+                  className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    Nama Produk
+                    {sortField === 'name' && (
+                      <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('purchase_price')}
+                  className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    Harga Beli
+                    {sortField === 'purchase_price' && (
+                      <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort('selling_price')}
+                  className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    Harga Jual
+                    {sortField === 'selling_price' && (
+                      <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
+                </th>
                 <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Margin
                 </th>
-                <SortableHeader field="stock" label="Stok" />
+                <th
+                  onClick={() => handleSort('stock')}
+                  className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    Stok
+                    {sortField === 'stock' && (
+                      <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    )}
+                  </div>
+                </th>
                 <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Aksi
                 </th>

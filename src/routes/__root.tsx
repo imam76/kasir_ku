@@ -5,7 +5,7 @@ import { ShoppingCartOutlined, AppstoreOutlined, HistoryOutlined, FileTextOutlin
 import { useState } from 'react'
 import { Loading } from '../components/Loading'
 import { NotFound } from '../components/NotFound'
-import { useTheme } from '../ThemeProvider'
+import { useTheme } from '../hooks/useTheme'
 
 const { Header, Content } = Layout
 const { useBreakpoint } = Grid

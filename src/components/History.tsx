@@ -54,12 +54,12 @@ export default function History() {
                     <div>
                       <p className="text-xs text-gray-500">Profit</p>
                       <p className={`font-bold ${transaction.items
-                          ? transaction.items.reduce((sum: number, item: any) => sum + (item.profit || 0), 0) > 0
+                          ? transaction.items.reduce((sum, item) => sum + (item.profit || 0), 0) > 0
                             ? 'text-green-700'
                             : 'text-red-700'
                           : 'text-gray-700'
                         }`}>
-                        Rp {formatCurrency(transaction.items ? transaction.items.reduce((sum: number, item: any) => sum + (item.profit || 0), 0) : 0)}
+                        Rp {formatCurrency(transaction.items ? transaction.items.reduce((sum, item) => sum + (item.profit || 0), 0) : 0)}
                       </p>
                     </div>
                   </div>
