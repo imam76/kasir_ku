@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import dayjs from '../lib/dayjs';
 import { Transaction, StockPurchase } from '../types';
 
 interface SalesReportData {
@@ -27,12 +28,14 @@ export const useSalesReport = (startDate?: string, endDate?: string) => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Add date filters if provided
+      // Add date filters if provided (convert local Asia/Jakarta day to UTC ISO)
       if (startDate) {
-        query = query.gte('created_at', `${startDate}T00:00:00`);
+        const startISO = dayjs.tz(startDate).startOf('day').toISOString();
+        query = query.gte('created_at', startISO);
       }
       if (endDate) {
-        query = query.lte('created_at', `${endDate}T23:59:59`);
+        const endISO = dayjs.tz(endDate).endOf('day').toISOString();
+        query = query.lte('created_at', endISO);
       }
 
       const { data, error } = await query;
@@ -50,10 +53,12 @@ export const useSalesReport = (startDate?: string, endDate?: string) => {
         .in('transaction_id', transactionIds.length > 0 ? transactionIds : ['null']);
 
       if (startDate) {
-        profitQuery = profitQuery.gte('created_at', `${startDate}T00:00:00`);
+        const startISO = dayjs.tz(startDate).startOf('day').toISOString();
+        profitQuery = profitQuery.gte('created_at', startISO);
       }
       if (endDate) {
-        profitQuery = profitQuery.lte('created_at', `${endDate}T23:59:59`);
+        const endISO = dayjs.tz(endDate).endOf('day').toISOString();
+        profitQuery = profitQuery.lte('created_at', endISO);
       }
 
       const { data: profitData } = await profitQuery;
@@ -69,10 +74,12 @@ export const useSalesReport = (startDate?: string, endDate?: string) => {
         );
 
       if (startDate) {
-        itemsQuery = itemsQuery.gte('created_at', `${startDate}T00:00:00`);
+        const startISO = dayjs.tz(startDate).startOf('day').toISOString();
+        itemsQuery = itemsQuery.gte('created_at', startISO);
       }
       if (endDate) {
-        itemsQuery = itemsQuery.lte('created_at', `${endDate}T23:59:59`);
+        const endISO = dayjs.tz(endDate).endOf('day').toISOString();
+        itemsQuery = itemsQuery.lte('created_at', endISO);
       }
 
       const { data: itemsData } = await itemsQuery;
@@ -99,12 +106,14 @@ export const usePurchaseReport = (startDate?: string, endDate?: string) => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Add date filters if provided
+      // Add date filters if provided (convert local Asia/Jakarta day to UTC ISO)
       if (startDate) {
-        query = query.gte('created_at', `${startDate}T00:00:00`);
+        const startISO = dayjs.tz(startDate).startOf('day').toISOString();
+        query = query.gte('created_at', startISO);
       }
       if (endDate) {
-        query = query.lte('created_at', `${endDate}T23:59:59`);
+        const endISO = dayjs.tz(endDate).endOf('day').toISOString();
+        query = query.lte('created_at', endISO);
       }
 
       const { data, error } = await query;

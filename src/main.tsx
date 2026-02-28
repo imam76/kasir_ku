@@ -6,6 +6,7 @@ import { routeTree } from './routeTree.gen';
 import './index.css';
 import { ThemeProvider } from './ThemeProvider';
 import { QueryProvider } from './providers/QueryProvider';
+import './lib/dayjs';
 
 // Create a new router instance
 const router = createRouter({ routeTree })

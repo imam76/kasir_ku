@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, Button, DatePicker, Space, Table, Statistic, Empty, Tag, Select } from 'antd';
 import { DownloadOutlined, FilterOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import dayjs from '../lib/dayjs';
 import { usePurchaseReport } from '../hooks/useReports';
 import { formatCurrency } from '../utils/formatters';
 import { Loading } from './Loading';
@@ -80,14 +80,14 @@ export default function PurchaseReport() {
     if (!data) return;
 
     const csv = [
-      ['Laporan Pembelian Stok', dayjs().format('YYYY-MM-DD HH:mm:ss')],
+      ['Laporan Pembelian Stok', dayjs().tz().format('YYYY-MM-DD HH:mm:ss')],
       [`Periode: ${startDate || 'Semua'} s/d ${endDate || 'Semua'}`],
       [],
       ['Nama Produk', 'SKU', 'Tanggal', 'Qty', 'Harga Satuan', 'Total Biaya'],
       ...data.purchases.map((purchase) => [
         purchase.product_name,
         purchase.sku,
-        dayjs(purchase.created_at).format('YYYY-MM-DD HH:mm:ss'),
+        dayjs(purchase.created_at).tz().format('YYYY-MM-DD HH:mm:ss'),
         purchase.quantity,
         purchase.cost_per_unit,
         purchase.total_cost,
@@ -106,7 +106,7 @@ export default function PurchaseReport() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `laporan-pembelian-${dayjs().format('YYYY-MM-DD')}.csv`;
+    a.download = `laporan-pembelian-${dayjs().tz().format('YYYY-MM-DD')}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -130,7 +130,7 @@ export default function PurchaseReport() {
       dataIndex: 'created_at',
       key: 'created_at',
       width: 180,
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm'),
+      render: (date: string) => dayjs(date).tz().format('YYYY-MM-DD HH:mm'),
     },
     {
       title: 'Qty',

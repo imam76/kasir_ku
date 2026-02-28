@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, Button, DatePicker, Space, Table, Statistic, Empty, Select } from 'antd';
 import { DownloadOutlined, FilterOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import dayjs from '../lib/dayjs';
 import { useSalesReport } from '../hooks/useReports';
 import { formatCurrency } from '../utils/formatters';
 import { Loading } from './Loading';
@@ -80,13 +80,13 @@ export default function SalesReport() {
     if (!data) return;
 
     const csv = [
-      ['Laporan Penjualan', dayjs().format('YYYY-MM-DD HH:mm:ss')],
+      ['Laporan Penjualan', dayjs().tz().format('YYYY-MM-DD HH:mm:ss')],
       [`Periode: ${startDate || 'Semua'} s/d ${endDate || 'Semua'}`],
       [],
       ['No. Transaksi', 'Tanggal', 'Total Penjualan', 'Pembayaran', 'Kembalian'],
       ...data.transactions.map((t) => [
         t.transaction_number,
-        dayjs(t.created_at).format('YYYY-MM-DD HH:mm:ss'),
+        dayjs(t.created_at).tz().format('YYYY-MM-DD HH:mm:ss'),
         t.total_amount,
         t.payment_amount,
         t.change_amount,
@@ -106,7 +106,7 @@ export default function SalesReport() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `laporan-penjualan-${dayjs().format('YYYY-MM-DD')}.csv`;
+    a.download = `laporan-penjualan-${dayjs().tz().format('YYYY-MM-DD')}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -123,7 +123,7 @@ export default function SalesReport() {
       dataIndex: 'created_at',
       key: 'created_at',
       width: 180,
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
+      render: (date: string) => dayjs(date).tz().format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: 'Total Penjualan',

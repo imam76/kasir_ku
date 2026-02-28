@@ -1,12 +1,7 @@
+import dayjs from '../lib/dayjs';
+
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return dayjs(dateString).tz().format('D MMMM YYYY HH:mm');
 };
 
 export const formatCurrency = (value: number): string => {
