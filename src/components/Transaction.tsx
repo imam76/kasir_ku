@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, DollarSign, X } from 'lucide-react';
 import { Modal, Result } from 'antd';
-import { useTransaction } from '../hooks/useTransaction';
-import { formatCurrency } from '../utils/formatters';
+import { useTransaction } from '@/hooks/useTransaction';
+import { formatCurrency } from '@/utils/formatters';
 
 export default function Transaction() {
   const {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
-import { Product } from '../types';
+import { supabase } from '@/lib/supabase';
+import { Product } from '@/types';
 
 interface FormData {
   name: string;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Product, CartItem } from '../types';
+import { Product, CartItem } from '@/types';
 
 export interface ModalState {
   visible: boolean;

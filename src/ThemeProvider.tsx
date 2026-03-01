@@ -3,8 +3,8 @@
 
 import { useState, useEffect, type ReactNode } from "react";
 import { ConfigProvider } from "antd";
-import { lightTheme, darkTheme, type ThemeMode } from "./theme";
-import { ThemeContext } from "./hooks/useTheme";
+import { lightTheme, darkTheme, type ThemeMode } from "@/theme";
+import { ThemeContext } from "@/hooks/useTheme";
 
 // ── Provider ─────────────────────────────────────────────────
 interface ThemeProviderProps {

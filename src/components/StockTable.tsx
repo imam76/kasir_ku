@@ -1,7 +1,7 @@
 import { Edit2, Search, Trash2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import type { Product } from '../types';
-import { formatCurrency, getStockStatusClass } from '../utils/formatters';
+import type { Product } from '@/types';
+import { formatCurrency, getStockStatusClass } from '@/utils/formatters';
 
 interface StockTableProps {
   products: Product[];

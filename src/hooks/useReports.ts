@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
-import dayjs from '../lib/dayjs';
-import { Transaction, StockPurchase } from '../types';
+import { supabase } from '@/lib/supabase';
+import dayjs from '@/lib/dayjs';
+import { Transaction, StockPurchase } from '@/types';
 
 interface SalesReportData {
   transactions: Transaction[];

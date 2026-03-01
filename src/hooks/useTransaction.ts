@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
-import { useTransactionStore } from '../store/transactionStore';
+import { supabase } from '@/lib/supabase';
+import { useTransactionStore } from '@/store/transactionStore';
 
 export const useTransaction = () => {
   const queryClient = useQueryClient();

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Card, Button, DatePicker, Space, Table, Statistic, Empty, Tag, Select } from 'antd';
 import { DownloadOutlined, FilterOutlined } from '@ant-design/icons';
-import dayjs from '../lib/dayjs';
-import { usePurchaseReport } from '../hooks/useReports';
-import { formatCurrency } from '../utils/formatters';
+import dayjs from '@/lib/dayjs';
+import { usePurchaseReport } from '@/hooks/useReports';
+import { formatCurrency } from '@/utils/formatters';
 import { Loading } from './Loading';
 
 export default function PurchaseReport() {

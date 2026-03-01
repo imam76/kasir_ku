@@ -1,8 +1,8 @@
 import { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { Receipt, ChevronDown, ChevronUp } from 'lucide-react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
-import { useHistory } from '../hooks/useHistory';
-import { formatDate, formatCurrency } from '../utils/formatters';
+import { useHistory } from '@/hooks/useHistory';
+import { formatDate, formatCurrency } from '@/utils/formatters';
 
 export default function History() {
   const {

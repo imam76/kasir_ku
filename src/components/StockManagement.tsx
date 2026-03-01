@@ -1,10 +1,10 @@
 import { Form, Modal, Input, InputNumber } from 'antd';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { useStockManagement } from '../hooks/useStockManagement';
-import type { Product } from '../types';
+import { useStockManagement } from '@/hooks/useStockManagement';
+import type { Product } from '@/types';
 import { Controller } from 'react-hook-form';
-import StockTable from './StockTable';
+import StockTable from '@/components/StockTable';
 
 export default function StockManagement() {
   const {

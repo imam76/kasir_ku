@@ -3,9 +3,9 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Layout, Menu, Switch, Drawer, Button, Grid } from 'antd'
 import { ShoppingCartOutlined, AppstoreOutlined, HistoryOutlined, FileTextOutlined, MoonOutlined, SunOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons'
 import { useState } from 'react'
-import { Loading } from '../components/Loading'
-import { NotFound } from '../components/NotFound'
-import { useTheme } from '../hooks/useTheme'
+import { Loading } from '@/components/Loading'
+import { NotFound } from '@/components/NotFound'
+import { useTheme } from '@/hooks/useTheme'
 
 const { Header, Content } = Layout
 const { useBreakpoint } = Grid
