@@ -7,10 +7,10 @@ import { formatCurrency } from '@/utils/formatters';
 import { Loading } from './Loading';
 
 export default function PurchaseReport() {
-  const [startDate, setStartDate] = useState<string | undefined>(undefined);
-  const [endDate, setEndDate] = useState<string | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(dayjs().format('YYYY-MM-DD'));
+  const [endDate, setEndDate] = useState<string | undefined>(dayjs().format('YYYY-MM-DD'));
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
-  const [selectedHelper, setSelectedHelper] = useState<string | undefined>(undefined);
+  const [selectedHelper, setSelectedHelper] = useState<string | undefined>('today');
 
   const { data, isLoading, error } = usePurchaseReport(startDate, endDate);
 
